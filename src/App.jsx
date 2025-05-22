@@ -66,6 +66,27 @@ function App() {
         ease: "power3.out",
       }
     );
+    
+    // Color transition animation for hero section
+    const colorTransitionTimeline = gsap.timeline({
+      delay: 3, // Start after 3 seconds
+      repeat: -1, // Repeat indefinitely
+      repeatDelay: 1, // 1 second delay between cycles
+    });
+    
+    // Cycle through all color variants
+    VARIANTS.forEach((variant, index) => {
+      colorTransitionTimeline.to(airpodsRef.current, {
+        onStart: () => setCurrentColor(variant.id),
+        duration: 2,
+        ease: "power2.inOut",
+      });
+    });
+    
+    return () => {
+      // Clean up animation when component unmounts
+      colorTransitionTimeline.kill();
+    };
 
     // Horizontal scroll section
     const horizontalSection = document.querySelector(".horizontal-scroll");
@@ -148,19 +169,39 @@ function App() {
       });
     }
 
-    // Create scroll progress indicator
+    // Create scroll progress indicator with improved implementation
     const progressBar = document.querySelector(".scroll-progress-bar");
     if (progressBar) {
-      gsap.to(progressBar, {
-        width: "100%",
-        ease: "none",
-        scrollTrigger: {
-          trigger: document.body,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.3,
-        },
+      // Clear any existing ScrollTriggers for the progress bar
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.vars.trigger === document.body) {
+          st.kill();
+        }
       });
+
+      // Create new ScrollTrigger for progress bar
+      gsap.fromTo(
+        progressBar,
+        { width: "0%" },
+        {
+          width: "100%",
+          ease: "none",
+          scrollTrigger: {
+            trigger: document.body,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.3,
+            onUpdate: (self) => {
+              // Ensure width is set correctly based on scroll progress
+              progressBar.style.width = `${self.progress * 100}%`;
+            },
+            onRefresh: () => {
+              // Reset progress bar when ScrollTrigger refreshes
+              progressBar.style.width = "0%";
+            },
+          },
+        }
+      );
     }
   }, [colors]);
 
@@ -211,9 +252,9 @@ function App() {
         </div>
 
         <div className="flex justify-between items-center p-4">
-          <div className="flex-1">
+          {/* <div className="flex-1">
             <span className="text-white font-bold text-xl">AirPods Max</span>
-          </div>
+          </div> */}
 
           <div className="flex items-center space-x-2 md:space-x-6">
             <button
@@ -310,8 +351,8 @@ function App() {
             <AirpodsVariant
               color={currentColor}
               scale={scale}
-              rotation={rotation}
-              xPosition={xPosition}
+              // rotation={rotation}
+              // xPosition={xPosition}
             />
           </ErrorBoundary>
         </motion.div>
@@ -408,6 +449,54 @@ function App() {
         </div>
       </section>
 
+      {/* YouTube Video Section */}
+      <section
+        id="video"
+        className="video-section min-h-screen flex flex-col justify-center items-center py-20"
+        style={{
+          background: "linear-gradient(180deg, #111 0%, #000 100%)",
+        }}
+      >
+        <div className="container mx-auto px-4 text-center">
+          <motion.h2
+            className="text-4xl font-bold mb-8 text-white"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            Experience AirPods Max
+          </motion.h2>
+          <motion.p
+            className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            Watch the official Apple video to discover the magic of AirPods Max
+          </motion.p>
+          <motion.div
+            className="video-container relative overflow-hidden rounded-2xl shadow-2xl mx-auto"
+            style={{ maxWidth: "800px", aspectRatio: "16/9" }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/RfNnRFkKi3U"
+              title="AirPods Max - Official Apple Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Colors Section with Horizontal Scroll */}
       <section
         id="colors"
@@ -485,7 +574,7 @@ function App() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            Choose Your AirPods Max
+            Choose Your AirPods Max's Color
           </motion.h2>
 
           <div className="flex flex-wrap justify-center gap-8 mb-12">
@@ -504,8 +593,8 @@ function App() {
                   position: "relative",
                   overflow: "hidden",
                   borderRadius: "50%",
-                  width: "80px",
-                  height: "80px",
+                  width: "50px",
+                  height: "50px",
                   border:
                     currentColor === variant.id
                       ? `3px solid ${variant.glow}`
@@ -520,7 +609,7 @@ function App() {
                 <div
                   className="color-preview"
                   style={{
-                    backgroundImage: `url(${variant.url})`,
+                    backgroundColor: variant.hex,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     width: "100%",
@@ -528,9 +617,9 @@ function App() {
                     transform: "scale(1.5)",
                   }}
                 ></div>
-                <p className="text-white mt-2 capitalize text-center">
+                {/* <p className="text-white mt-2 capitalize text-center">
                   {variant.name}
-                </p>
+                </p> */}
               </motion.div>
             ))}
           </div>
@@ -545,7 +634,7 @@ function App() {
             <div className="flex justify-center items-center">
               <div
                 className="small-airpods-icon mr-4"
-                style={{ width: "60px", height: "60px", overflow: "hidden" }}
+                style={{ width: "180px", height: "180px", overflow: "hidden" }}
               >
                 {VARIANTS.find((v) => v.id === currentColor) && (
                   <img

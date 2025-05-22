@@ -14,28 +14,34 @@ const Navbar = ({
   /* ---- scroll listener (throttled with rAF) ---- */
   useEffect(() => {
     let ticking = false;
-    const sections = ["home", "features", "pricing", "support"];
+    const sections = ["home", "features", "colors", "pricing"];
 
     const handleScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
+        // Update scrolled state based on scroll position
         setScrolled(window.scrollY > 50);
 
+        // Find current section in viewport
         const current = sections.find((id) => {
           const el = document.getElementById(id);
           if (!el) return false;
           const { top, bottom } = el.getBoundingClientRect();
           return top <= 100 && bottom >= 100;
         });
+        
         if (current) setActive(current);
         ticking = false;
       });
     };
 
+    // Initial call to set correct state on mount
+    handleScroll();
+    
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, []);}]}}
 
   /* ---- items ---- */
   const navItems = [
