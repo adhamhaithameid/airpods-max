@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import AirpodsModel from "./components/AirpodsModel";
+import AirpodsVariant, { VARIANTS } from "./components/AirpodsVariant";
 import "./App.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -18,7 +18,7 @@ function App() {
   const [horizontalScrollActive, setHorizontalScrollActive] = useState(false);
 
   // Colors available for AirPods Max
-  const colors = ["space-gray", "silver", "green", "sky-blue", "pink"];
+  const colors = VARIANTS.map((variant) => variant.id);
 
   // Pricing in different currencies
   const pricing = {
@@ -73,26 +73,68 @@ function App() {
     if (horizontalSection) {
       const colorSections = gsap.utils.toArray(".color-section");
 
-      // Create horizontal scroll animation
-      ScrollTrigger.create({
-        trigger: horizontalSection,
-        start: "top 20%",
-        end: () => `+=${horizontalSection.offsetWidth}`,
-        pin: true,
-        onEnter: () => setHorizontalScrollActive(true),
-        onLeaveBack: () => setHorizontalScrollActive(false),
-        scrub: true,
+      // Set the width of the colors container to accommodate all sections
+      const colorsContainer =
+        horizontalSection.querySelector(".colors-container");
+      if (!colorsContainer) return;
+
+      // Clear any existing ScrollTriggers to prevent conflicts
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.vars.trigger === horizontalSection) {
+          st.kill();
+        }
       });
 
-      // Create color change animation
-      gsap.to(colorSections, {
-        xPercent: -100 * (colorSections.length - 1),
+      // Create horizontal scroll animation with improved configuration
+      const totalDistance = colorSections.length * 100;
+
+      // Set up the colors container for horizontal scrolling
+      gsap.set(colorsContainer, {
+        width: `${colorSections.length * 100}%`,
+        display: "flex",
+        flexDirection: "row",
+        position: "relative", // Add position relative to fix scroll calculation
+      });
+
+      // Ensure each color section has the correct width
+      colorSections.forEach((section) => {
+        gsap.set(section, {
+          width: "100%",
+          flex: "0 0 100%",
+          position: "relative", // Add position relative to fix scroll calculation
+        });
+      });
+
+      // Main ScrollTrigger for pinning the section
+      ScrollTrigger.create({
+        trigger: horizontalSection,
+        start: "top top",
+        end: () => `+=${totalDistance}vh`,
+        pin: true,
+        pinSpacing: true,
+        anticipatePin: 1, // Helps with smoother pinning
+        onEnter: () => setHorizontalScrollActive(true),
+        onLeaveBack: () => setHorizontalScrollActive(false),
+        scrub: 1, // Smoother scrubbing with a small delay
+        invalidateOnRefresh: true, // Recalculate on window resize
+        markers: false, // Set to true for debugging
+      });
+
+      // Create color change animation with improved configuration
+      gsap.to(colorsContainer, {
+        x: () => -(colorsContainer.offsetWidth - window.innerWidth),
         ease: "none",
         scrollTrigger: {
           trigger: horizontalSection,
-          start: "top 20%",
-          end: () => `+=${horizontalSection.offsetWidth}`,
-          scrub: true,
+          start: "top top",
+          end: () => `+=${totalDistance}vh`,
+          scrub: 1,
+          snap: {
+            snapTo: 1 / (colorSections.length - 1),
+            duration: 0.3,
+            ease: "power1.inOut",
+          },
+          invalidateOnRefresh: true,
           onUpdate: (self) => {
             // Calculate which color section is active
             const progress = self.progress;
@@ -105,9 +147,24 @@ function App() {
         },
       });
     }
-  }, []);
 
-  // Handle navigation
+    // Create scroll progress indicator
+    const progressBar = document.querySelector(".scroll-progress-bar");
+    if (progressBar) {
+      gsap.to(progressBar, {
+        width: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.3,
+        },
+      });
+    }
+  }, [colors]);
+
+  // Handle navigation and section detection
   const handleNavigation = (section) => {
     setActiveSection(section);
     const element = document.getElementById(section);
@@ -115,6 +172,25 @@ function App() {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // Add scroll-based section detection
+  useEffect(() => {
+    const sections = ["home", "features", "colors", "pricing"];
+
+    // Create ScrollTrigger for each section to update active section
+    sections.forEach((sectionId) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        ScrollTrigger.create({
+          trigger: element,
+          start: "top 40%",
+          end: "bottom 40%",
+          onEnter: () => setActiveSection(sectionId),
+          onEnterBack: () => setActiveSection(sectionId),
+        });
+      }
+    });
+  }, []);
 
   // Handle currency change
   const handleCurrencyChange = (currency) => {
@@ -127,39 +203,88 @@ function App() {
       ref={containerRef}
       style={{ position: "relative" }}
     >
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-black bg-opacity-80 backdrop-blur-md">
-        <div className="flex items-center space-x-8">
-          <button
-            className={`nav-button ${activeSection === "home" ? "active" : ""}`}
-            onClick={() => handleNavigation("home")}
-          >
-            Home
-          </button>
-          <button
-            className={`nav-button ${
-              activeSection === "features" ? "active" : ""
-            }`}
-            onClick={() => handleNavigation("features")}
-          >
-            Features
-          </button>
-          <button
-            className={`nav-button ${
-              activeSection === "colors" ? "active" : ""
-            }`}
-            onClick={() => handleNavigation("colors")}
-          >
-            Colors
-          </button>
-          <button
-            className={`nav-button ${
-              activeSection === "pricing" ? "active" : ""
-            }`}
-            onClick={() => handleNavigation("pricing")}
-          >
-            Pricing
-          </button>
+      {/* Navigation with Scroll Progress Indicator */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex flex-col bg-black bg-opacity-80 backdrop-blur-md">
+        {/* Scroll Progress Indicator */}
+        <div className="scroll-progress-container w-full h-1 bg-gray-800">
+          <div className="scroll-progress-bar h-full bg-white w-0"></div>
+        </div>
+
+        <div className="flex justify-between items-center p-4">
+          <div className="flex-1">
+            <span className="text-white font-bold text-xl">AirPods Max</span>
+          </div>
+
+          <div className="flex items-center space-x-2 md:space-x-6">
+            <button
+              className={`nav-button relative px-4 py-2 text-white transition-all duration-300 ${
+                activeSection === "home"
+                  ? "font-bold"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => handleNavigation("home")}
+            >
+              Home
+              {activeSection === "home" && (
+                <motion.div
+                  className="absolute bottom-0 left-0 h-0.5 bg-white w-full"
+                  layoutId="activeSection"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+            <button
+              className={`nav-button relative px-4 py-2 text-white transition-all duration-300 ${
+                activeSection === "features"
+                  ? "font-bold"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => handleNavigation("features")}
+            >
+              Features
+              {activeSection === "features" && (
+                <motion.div
+                  className="absolute bottom-0 left-0 h-0.5 bg-white w-full"
+                  layoutId="activeSection"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+            <button
+              className={`nav-button relative px-4 py-2 text-white transition-all duration-300 ${
+                activeSection === "colors"
+                  ? "font-bold"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => handleNavigation("colors")}
+            >
+              Colors
+              {activeSection === "colors" && (
+                <motion.div
+                  className="absolute bottom-0 left-0 h-0.5 bg-white w-full"
+                  layoutId="activeSection"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+            <button
+              className={`nav-button relative px-4 py-2 text-white transition-all duration-300 ${
+                activeSection === "pricing"
+                  ? "font-bold"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => handleNavigation("pricing")}
+            >
+              Pricing
+              {activeSection === "pricing" && (
+                <motion.div
+                  className="absolute bottom-0 left-0 h-0.5 bg-white w-full"
+                  layoutId="activeSection"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -175,19 +300,14 @@ function App() {
           ref={airpodsRef}
           className="airpods-model"
           style={{
-            scale,
-            rotate: rotation,
-            x: xPosition,
             width: "500px",
             height: "500px",
-            filter: "drop-shadow(0 0 30px rgba(0, 113, 227, 0.3))",
+            perspective: "1000px",
           }}
         >
-          {/* Fallback for when 3D model is loading */}
-          <div className={`airpods-placeholder bg-${currentColor}`}></div>
-          {/* 3D Model integration */}
+          {/* Official Apple product images with ErrorBoundary */}
           <ErrorBoundary fallbackColor={currentColor}>
-            <AirpodsModel
+            <AirpodsVariant
               color={currentColor}
               scale={scale}
               rotation={rotation}
@@ -227,8 +347,38 @@ function App() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
+              style={{
+                width: "100%",
+                height: "400px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              <div className={`airpods-feature-image bg-${currentColor}`}></div>
+              {VARIANTS.find((v) => v.id === currentColor) && (
+                <div
+                  className="airpods-feature-image"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    maxWidth: "400px",
+                    position: "relative",
+                    filter: `drop-shadow(0 0 30px ${
+                      VARIANTS.find((v) => v.id === currentColor).glow
+                    })`,
+                  }}
+                >
+                  <img
+                    src={VARIANTS.find((v) => v.id === currentColor).url}
+                    alt={`AirPods Max - ${currentColor}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+              )}
             </motion.div>
             <motion.div
               className="md:w-1/2 text-left"
@@ -263,24 +413,40 @@ function App() {
         id="colors"
         className="horizontal-scroll min-h-screen relative overflow-hidden"
       >
-        <div className="colors-container flex">
-          {colors.map((color, index) => (
+        <div className="colors-container">
+          {VARIANTS.map((variant, index) => (
             <div
-              key={color}
-              className="color-section min-w-full min-h-screen flex items-center justify-center"
+              key={variant.id}
+              className="color-section min-h-screen flex items-center justify-center"
             >
               <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
                 <motion.div
-                  className={`airpods-color-display bg-${color} ${
+                  className={`airpods-color-display ${
                     index % 2 === 0
                       ? "order-1 md:order-1"
                       : "order-1 md:order-2"
                   }`}
+                  style={{
+                    width: "500px",
+                    height: "500px",
+                    position: "relative",
+                    filter: `drop-shadow(0 0 30px ${variant.glow})`,
+                  }}
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
-                ></motion.div>
+                >
+                  <img
+                    src={variant.url}
+                    alt={`AirPods Max - ${variant.name}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </motion.div>
                 <motion.div
                   className={`text-content ${
                     index % 2 === 0
@@ -293,7 +459,7 @@ function App() {
                   viewport={{ once: true }}
                 >
                   <h2 className="text-4xl font-bold mb-6 text-white capitalize">
-                    {color.replace("-", " ")}
+                    {variant.name}
                   </h2>
                   <p className="text-gray-300 text-lg">
                     Express yourself with a splash of color. AirPods Max come in
@@ -323,21 +489,47 @@ function App() {
           </motion.h2>
 
           <div className="flex flex-wrap justify-center gap-8 mb-12">
-            {colors.map((color) => (
+            {VARIANTS.map((variant) => (
               <motion.div
-                key={color}
+                key={variant.id}
                 className={`color-option cursor-pointer ${
-                  currentColor === color ? "selected" : ""
+                  currentColor === variant.id ? "selected" : ""
                 }`}
-                onClick={() => setCurrentColor(color)}
+                onClick={() => setCurrentColor(variant.id)}
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  borderRadius: "50%",
+                  width: "80px",
+                  height: "80px",
+                  border:
+                    currentColor === variant.id
+                      ? `3px solid ${variant.glow}`
+                      : "3px solid transparent",
+                  boxShadow:
+                    currentColor === variant.id
+                      ? `0 0 15px ${variant.glow}`
+                      : "none",
+                  transition: "all 0.3s ease",
+                }}
               >
-                <div className={`color-circle bg-${color}`}></div>
-                <p className="text-white mt-2 capitalize">
-                  {color.replace("-", " ")}
+                <div
+                  className="color-preview"
+                  style={{
+                    backgroundImage: `url(${variant.url})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    width: "100%",
+                    height: "100%",
+                    transform: "scale(1.5)",
+                  }}
+                ></div>
+                <p className="text-white mt-2 capitalize text-center">
+                  {variant.name}
                 </p>
               </motion.div>
             ))}
@@ -351,8 +543,21 @@ function App() {
             viewport={{ once: true }}
           >
             <div className="flex justify-center items-center">
-              <div className="small-airpods-icon mr-4">
-                <div className={`mini-airpods bg-${currentColor}`}></div>
+              <div
+                className="small-airpods-icon mr-4"
+                style={{ width: "60px", height: "60px", overflow: "hidden" }}
+              >
+                {VARIANTS.find((v) => v.id === currentColor) && (
+                  <img
+                    src={VARIANTS.find((v) => v.id === currentColor).url}
+                    alt={`AirPods Max - ${currentColor}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
               </div>
               <div className="price-info">
                 <h3 className="text-3xl font-bold text-white">

@@ -67,29 +67,17 @@
 }
 
 /* Color variants */
-.bg-space-gray {
-  background-color: #1d1d1f;
-  box-shadow: 0 0 50px rgba(29, 29, 31, 0.5);
+.airpods-model {
+  transition: all 0.5s ease;
 }
 
-.bg-silver {
-  background-color: #e3e3e3;
-  box-shadow: 0 0 50px rgba(227, 227, 227, 0.5);
-}
-
-.bg-green {
-  background-color: #576856;
-  box-shadow: 0 0 50px rgba(87, 104, 86, 0.5);
-}
-
-.bg-sky-blue {
-  background-color: #90bcd0;
-  box-shadow: 0 0 50px rgba(144, 188, 208, 0.5);
-}
-
-.bg-pink {
-  background-color: #e0b1cb;
-  box-shadow: 0 0 50px rgba(224, 177, 203, 0.5);
+.airpods-variant-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s ease;
 }
 
 /* Features Section */
@@ -99,10 +87,11 @@
 }
 
 .airpods-feature-image {
-  width: 300px;
-  height: 300px;
+  width: 100%;
+  height: 400px;
   border-radius: 20px;
-  margin: 0 auto;
+  background-size: cover;
+  background-position: center;
   transition: all 0.5s ease;
 }
 
@@ -110,17 +99,30 @@
 .horizontal-scroll {
   background: #000;
   overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: relative; /* Ensure position is set to relative */
+  min-height: 100vh !important; /* Ensure section maintains height during scroll */
+  will-change: transform; /* Optimize for animations */
 }
 
 .colors-container {
-  width: 100%;
   height: 100vh;
+  display: flex;
+  flex-wrap: nowrap;
+  position: relative; /* Changed from absolute to relative */
+  left: 0;
+  top: 0;
 }
 
 .color-section {
   height: 100vh;
   width: 100vw;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* Added position relative */
 }
 
 .airpods-color-display {
@@ -149,16 +151,28 @@
   transform: scale(1.1);
 }
 
-.color-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid transparent;
+.color-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10px;
   transition: all 0.3s ease;
 }
 
-.color-option.selected .color-circle {
-  border-color: #0071e3;
+.color-option:hover {
+  transform: scale(1.05);
+}
+
+.color-option p {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.color-option.selected p {
+  opacity: 1;
 }
 
 .small-airpods-icon {
@@ -169,11 +183,15 @@
   justify-content: center;
 }
 
-.mini-airpods {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
+.small-airpods-icon {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+}
+
+.small-airpods-icon:hover {
+  transform: scale(1.05);
 }
 
 .currency-button {
@@ -198,8 +216,10 @@
   height: 100%;
   position: relative;
   overflow: hidden;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: all 0.5s ease;
 }
 
 .loading-placeholder {
@@ -208,21 +228,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1a1a1a;
-  border-radius: 12px;
+  border-radius: 20px;
   position: absolute;
   top: 0;
   left: 0;
   z-index: 5;
+  transition: opacity 0.5s ease;
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255, 255, 255, 0.1);
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   border-top-color: #0071e3;
-  animation: spin 1s ease-in-out infinite;
+  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
 }
 
 @keyframes spin {
@@ -235,7 +255,14 @@
   width: 100%;
   height: 100%;
   position: relative;
-  z-index: 10;
+  z-index: 2;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.sketchfab-embed-wrapper iframe {
+  border-radius: 20px;
+  transition: all 0.5s ease;
 }
 
 .model-attribution {
@@ -243,15 +270,18 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 3px;
   z-index: 20;
-  opacity: 0.7;
+  opacity: 0.5;
   transition: opacity 0.3s ease;
+  font-size: 10px;
+  transform: translateY(70%);
 }
 
-.model-attribution:hover {
-  opacity: 1;
+.model-container:hover .model-attribution {
+  opacity: 0.8;
+  transform: translateY(0);
 }
 
 /* Enhanced UI Elements */
