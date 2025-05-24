@@ -23,12 +23,13 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
 .nav-button:hover,
 .nav-button.active {
-  color: #0071e3;
+  color: #fff;
 }
 
 /* Hero Section */
@@ -106,23 +107,36 @@
   will-change: transform; /* Optimize for animations */
 }
 
-.colors-container {
+.colors-container,
+.videos-container {
   height: 100vh;
   display: flex;
   flex-wrap: nowrap;
   position: relative; /* Changed from absolute to relative */
   left: 0;
   top: 0;
+  width: 500%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox */
 }
 
-.color-section {
+.colors-container::-webkit-scrollbar,
+.videos-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.color-section,
+.video-section {
   height: 100vh;
   width: 100vw;
   flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative; /* Added position relative */
+  scroll-snap-align: start;
 }
 
 .airpods-color-display {
@@ -194,20 +208,95 @@
   transform: scale(1.05);
 }
 
+/* Color Selector Circles */
+.color-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.color-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.color-circle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.color-circle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: inherit;
+  filter: brightness(1.3);
+  z-index: 2;
+}
+
+.color-circle:hover {
+  transform: scale(1.1);
+}
+
+/* Currency Button */
 .currency-button {
-  background: transparent;
-  border: 1px solid #333;
-  color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 8px 16px;
   border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.currency-button:hover,
+.currency-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 .currency-button.active {
-  background: #0071e3;
-  border-color: #0071e3;
+  background-color: #0071e3;
+}
+
+/* Buy Now Button Glow */
+.shadow-glow {
+  transition: all 0.3s ease;
+}
+
+.shadow-glow:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px 8px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Footer Styles */
+footer {
+  background-color: #000;
+  color: #fff;
+  padding: 1rem 0;
+}
+
+footer a {
+  color: #999;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #fff;
 }
 
 /* Sketchfab Model Styling */
@@ -305,6 +394,28 @@
 .nav-button:hover::after,
 .nav-button.active::after {
   width: 100%;
+}
+
+/* YouTube Videos Section */
+.youtube-videos-section {
+  background: linear-gradient(180deg, #000 0%, #111 100%);
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-container {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.video-container:hover {
+  transform: translateY(-10px);
 }
 
 /* Responsive adjustments */

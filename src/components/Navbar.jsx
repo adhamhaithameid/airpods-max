@@ -30,7 +30,7 @@ const Navbar = ({
           const { top, bottom } = el.getBoundingClientRect();
           return top <= 100 && bottom >= 100;
         });
-        
+
         if (current) setActive(current);
         ticking = false;
       });
@@ -38,10 +38,10 @@ const Navbar = ({
 
     // Initial call to set correct state on mount
     handleScroll();
-    
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);}]}}
+  }, []);
 
   /* ---- items ---- */
   const navItems = [
@@ -54,56 +54,71 @@ const Navbar = ({
   /* ---- render ---- */
   return (
     <motion.nav
-      className={`fixed inset-x-0 top-0 z-40 px-6 py-4 transition-colors ${
+      className={`fixed inset-x-0 top-0 z-40 px-6 py-4 transition-all duration-300 ${
         scrolled
-          ? "border-b border-white/10 bg-background/90 backdrop-blur-xl shadow-lg"
+          ? "border-b border-white/10 bg-black/80 backdrop-blur-xl shadow-lg"
           : "bg-transparent"
       }`}
       initial={{ y: -80 }}
       animate={{ y: 0 }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between">
+        {/* Apple Logo */}
+        <div className="flex items-center">
+          <img src="/apple-logo.svg" alt="Apple" className="h-8 mr-6" />
+        </div>
+
         {/* desktop links */}
-        <div className="hidden gap-12 md:flex">
+        <div className="hidden gap-8 md:flex">
           {navItems.map(({ id, name, cb }) => (
-            <button
+            <motion.button
               key={id}
               onClick={cb}
-              className={`relative text-primary_text transition-colors hover:text-white ${
-                active === id && "text-white"
+              className={`relative px-4 py-2 text-sm font-medium transition-colors hover:text-white ${
+                active === id ? "text-white" : "text-gray-400"
               }`}
+              whileHover={{ scale: 1.05 }}
             >
               {name}
-              <motion.span
-                className="absolute -bottom-1 left-0 h-0.5 w-full bg-white"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: active === id ? 1 : 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-              />
-            </button>
+              {active === id && (
+                <motion.span
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"
+                  layoutId="activeTab"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
+            </motion.button>
           ))}
         </div>
 
         {/* mobile burger */}
-        <button
-          className="rounded-lg bg-button_dark/70 p-2 text-white md:hidden"
+        <motion.button
+          className="rounded-full bg-white/10 backdrop-blur-md p-2.5 text-white md:hidden"
           onClick={() => setMobileOpen((o) => !o)}
           aria-label="Toggle menu"
+          whileTap={{ scale: 0.95 }}
         >
-          {mobileOpen ? "✕" : "☰"}
-        </button>
+          <motion.div
+            animate={{ rotate: mobileOpen ? 90 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {mobileOpen ? "✕" : "☰"}
+          </motion.div>
+        </motion.button>
       </div>
 
       {/* mobile sheet */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="fixed inset-0 top-[72px] z-50 bg-background/95 backdrop-blur-xl"
+            className="fixed inset-0 top-[72px] z-50 bg-black/95 backdrop-blur-xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="flex flex-col space-y-6 p-6">
+            <div className="flex flex-col space-y-2 p-6">
               {navItems.map(({ id, name, cb }, i) => (
                 <motion.button
                   key={id}
@@ -111,12 +126,13 @@ const Navbar = ({
                     cb();
                     setMobileOpen(false);
                   }}
-                  className={`w-full border-b border-white/10 py-3 text-left text-xl ${
-                    active === id ? "text-white" : "text-primary_text"
+                  className={`w-full rounded-lg py-4 text-center text-xl font-medium ${
+                    active === id ? "bg-white/10 text-white" : "text-gray-400"
                   }`}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   {name}
                 </motion.button>
