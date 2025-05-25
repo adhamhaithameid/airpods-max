@@ -14,7 +14,8 @@ const Navbar = ({
   /* ---- scroll listener (throttled with rAF) ---- */
   useEffect(() => {
     let ticking = false;
-    const sections = ["home", "features", "colors", "pricing"];
+    // const sections = ["home", "features", "colors", "pricing"];
+    const sections = ["home", "features", "pricing"];
 
     const handleScroll = () => {
       if (ticking) return;
@@ -48,7 +49,7 @@ const Navbar = ({
     { id: "home", name: "Home", cb: onHomeClick },
     { id: "features", name: "Features", cb: onFeaturesClick },
     { id: "pricing", name: "Pricing", cb: onPricingClick },
-    { id: "support", name: "Support", cb: onSupportClick },
+    // { id: "support", name: "Support", cb: onSupportClick },
   ];
 
   /* ---- render ---- */
