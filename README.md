@@ -1,8 +1,7 @@
 # AirPods Max Website
 
 - This project is part of the Codveda internship as a Front End Engineer. [Internship Offer Letter](https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7324392120541151233)
-- Go Check the Youtube Video of the Project. [Youtube Video](https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7324392120541151233)
-- the Linkedin Post of the Project. [Linkedin Post](https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7324392120541151233)
+- Go Check the Youtube Video of the Project. [Youtube Video](https://youtu.be/FnLPnlwMsv0)
 
 ## Project Overview
 This project is a responsive website showcasing Apple AirPods Max, featuring 3D models, color variants, and interactive elements.
