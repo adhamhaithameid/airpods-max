@@ -11,10 +11,10 @@ This project is a responsive website showcasing Apple AirPods Max, featuring 3D 
 
 ### Screen Shot of the Project's Interface
 <p align="center">
-  <img src=https://github.com/adhamhaithameid/airpods-max/blob/e1891849b000bad90a5b7ca64bd1975daf4206da/Front-End%20Task%20List-14_page-0001.jpg alt="Dashboard Screenshot" width="200" height="150">
-  <img src=https://github.com/adhamhaithameid/airpods-max/blob/e1891849b000bad90a5b7ca64bd1975daf4206da/Front-End%20Task%20List-14_page-0001.jpg alt="Dashboard Screenshot" width="200" height="150">
-  <img src=https://github.com/adhamhaithameid/airpods-max/blob/e1891849b000bad90a5b7ca64bd1975daf4206da/Front-End%20Task%20List-14_page-0001.jpg alt="Dashboard Screenshot" width="200" height="150">
-  <img src=https://github.com/adhamhaithameid/airpods-max/blob/e1891849b000bad90a5b7ca64bd1975daf4206da/Front-End%20Task%20List-14_page-0001.jpg alt="Dashboard Screenshot" width="200" height="150">
+  <img src=https://github.com/adhamhaithameid/airpods-max/blob/46a73cfbeca0d0e70e8f09bc3a28dc8076dda599/1.png alt="Dashboard Screenshot" width="300" height="150">
+  <img src=https://github.com/adhamhaithameid/airpods-max/blob/46a73cfbeca0d0e70e8f09bc3a28dc8076dda599/2.png alt="Dashboard Screenshot" width="300" height="150">
+  <img src=https://github.com/adhamhaithameid/airpods-max/blob/46a73cfbeca0d0e70e8f09bc3a28dc8076dda599/3.png alt="Dashboard Screenshot" width="300" height="150">
+  <img src=https://github.com/adhamhaithameid/airpods-max/blob/46a73cfbeca0d0e70e8f09bc3a28dc8076dda599/4.png alt="Dashboard Screenshot" width="300" height="150">
 </p>
 
 ### the Task Requirements
